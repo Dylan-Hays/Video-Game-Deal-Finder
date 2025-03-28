@@ -1,0 +1,69 @@
+/* reset.css */
+
+/* Font Import */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900");
+
+/* Universal Reset */
+:where(*, *::before, *::after) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  box-sizing: border-box;
+}
+
+/* Reset Elements */
+ul, li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+header, nav, section, article, aside, footer, hgroup {
+  display: block;
+}
+
+html, body {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  background-color: #1f2122;
+}
+
+/* Typography Defaults */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: #fff;
+  font-weight: 700;
+}
+
+p {
+  font-size: 15px;
+  line-height: 30px;
+  color: #fff;
+  margin: 0;
+}
+
+a {
+  color: #CCC;
+  text-decoration: none !important;
+}
+a:hover {
+  color: #F99;
+}
+
+/* Images */
+img {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Selection Highlight */
+::selection {
+  background: #e75e8d;
+  color: #fff;
+}
+::-moz-selection {
+  background: #e75e8d;
+  color: #fff;
+}
