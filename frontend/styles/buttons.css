@@ -2,9 +2,10 @@
 
 /* === Main Button (Load More) === */
 .main-button {
-    font-size: 14px;
+    font-size: 15px;
     color: #fff;
-    background-color: #0025b7;
+    background-color: #001f8e;
+    transition: box-shadow 0.2s ease;
     padding: 12px 30px;
     display: inline-block;
     border-radius: 25px;

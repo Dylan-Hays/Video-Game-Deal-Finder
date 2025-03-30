@@ -1,5 +1,6 @@
 // cards.js
 
+// Main Card Renderer
 export function createGameCard(game) {
   const card = document.createElement("div");
   card.classList.add("game-card");
@@ -7,8 +8,8 @@ export function createGameCard(game) {
   const thumbnail = document.createElement("div");
   thumbnail.classList.add("thumbnail");
   const image = document.createElement("img");
-  image.src = game.background_image || "placeholder";
-  image.alt = `${game.name} cover`;
+  image.src = game.background_image;
+  image.alt = game.name;
   thumbnail.appendChild(image);
 
   const info = document.createElement("div");
@@ -22,11 +23,7 @@ export function createGameCard(game) {
 
   const platforms = document.createElement("div");
   platforms.classList.add("platforms");
-  game.platforms?.forEach(({ platform }) => {
-    const icon = document.createElement("i");
-    icon.classList.add("platform-icon", "fa-brands", getPlatformIcon(platform.slug));
-    platforms.appendChild(icon);
-  });
+  platforms.innerHTML = renderPlatforms(game.platforms);
 
   const metadata = document.createElement("ul");
 
@@ -34,7 +31,9 @@ export function createGameCard(game) {
   rating.innerHTML = `<i class="fa-solid fa-star"></i> ${game.rating || "N/A"}`;
 
   const released = document.createElement("li");
-  released.innerHTML = `<i class="fa-solid fa-calendar"></i> ${game.released || "Unknown"}`;
+  released.innerHTML = `<i class="fa-solid fa-calendar"></i> ${
+    game.released || "Unknown"
+  }`;
 
   metadata.appendChild(rating);
   metadata.appendChild(released);
@@ -42,6 +41,7 @@ export function createGameCard(game) {
   details.appendChild(title);
   details.appendChild(platforms);
   details.appendChild(metadata);
+
   info.appendChild(details);
 
   card.appendChild(thumbnail);
@@ -50,24 +50,55 @@ export function createGameCard(game) {
   return card;
 }
 
-function getPlatformIcon(slug) {
-  switch (slug) {
-    case "playstation":
-    case "playstation5":
-    case "playstation4":
-      return "fa-playstation";
-    case "xbox":
-    case "xbox-one":
-    case "xbox-series-x":
-      return "fa-xbox";
-    case "pc":
-      return "fa-windows";
-    case "nintendo-switch":
-      return "fa-nintendo-switch";
-    case "mac":
-      return "fa-apple";
-    default:
-      return "fa-gamepad";
-  }
+// Utility: Platform Icon Map
+const PLATFORM_ICON_MAP = {
+  pc: "fa-solid fa-desktop",
+  playstation: "fa-brands fa-playstation",
+  xbox: "fa-brands fa-xbox",
+  nintendo: "fa-solid fa-gamepad",
+  ios: "fa-brands fa-apple",
+  mac: "fa-brands fa-apple",
+  android: "fa-brands fa-android",
+  linux: "fa-brands fa-linux",
+  web: "fa-solid fa-globe",
+};
+
+const DEFAULT_PLATFORM_ICON = "fa-solid fa-gamepad";
+
+function normalizePlatform(name) {
+  const lower = name.toLowerCase();
+  if (lower.includes("playstation")) return "playstation";
+  if (lower.includes("xbox")) return "xbox";
+  if (lower.includes("nintendo")) return "nintendo";
+  if (lower.includes("pc")) return "pc";
+  if (lower.includes("mac")) return "mac";
+  if (lower.includes("ios")) return "ios";
+  if (lower.includes("android")) return "android";
+  if (lower.includes("linux")) return "linux";
+  if (lower.includes("web")) return "web";
+  return name.toLowerCase();
 }
 
+function renderPlatformIcon(normalized, nameList) {
+  const iconClass = PLATFORM_ICON_MAP[normalized] || DEFAULT_PLATFORM_ICON;
+  const title = nameList.join(", ");
+  return `<i class="${iconClass} platform-icon" title="${title}"></i>`;
+}
+
+function renderPlatforms(platformArray) {
+  const grouped = {};
+
+  platformArray.forEach((p) => {
+    const norm = normalizePlatform(p.platform.name);
+    if (!grouped[norm]) grouped[norm] = [];
+    grouped[norm].push(p.platform.name);
+  });
+
+  return Object.entries(grouped)
+    .map(([norm, names]) => renderPlatformIcon(norm, names))
+    .join("");
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

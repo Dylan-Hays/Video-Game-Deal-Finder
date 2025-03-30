@@ -60,10 +60,10 @@ img {
 
 /* Selection Highlight */
 ::selection {
-  background: #e75e8d;
+  background: #001f8e;
   color: #fff;
 }
 ::-moz-selection {
-  background: #e75e8d;
+  background: #001f8e;
   color: #fff;
 }
