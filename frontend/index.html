@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Game Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles/reset.css" />
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/cards.css" />
+    <link rel="stylesheet" href="styles/buttons.css" />
+    <link rel="stylesheet" href="styles/preloader.css" />
+  </head>
+
+  <body>
+    <header class="page-header">
+      <h1 class="heading">Video Game Tracker</h1>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search games..." />
+      </div>
+    </header>
+
+    <div id="js-preloader"></div>
+
+    <div class="container">
+      <div class="gameList"></div>
+
+      <footer class="page-footer">
+        <button class="main-button">Load More Games</button>
+      </footer>
+    </div>
+
+    <script src="../data/fetch.env.js"></script>
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/search.js"></script>
+  </body>
+</html>

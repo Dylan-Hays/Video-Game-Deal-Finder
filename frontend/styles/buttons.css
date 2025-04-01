@@ -1,0 +1,49 @@
+/* buttons.css */
+
+/* === Main Button (Load More) === */
+.main-button {
+    font-size: 15px;
+    color: #fff;
+    background-color: #001f8e;
+    transition: box-shadow 0.2s ease;
+    padding: 12px 30px;
+    display: inline-block;
+    border-radius: 25px;
+    font-weight: 400;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .main-button:hover {
+    background-color: #fff;
+    color: #003399;
+  }
+  
+  /* === Search Input (within search-bar) === */
+  .search-bar input {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    max-width: 300px;
+    width: 100%;
+    transition: box-shadow 0.2s ease;
+    background-color: #2a2a2a;
+    color: white;
+  }
+
+  .search-bar input:focus {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+
+  .main-button {
+  transition: transform 0.2s ease;
+}
+  .main-button:hover {
+  transform: scale(1.05);
+}
