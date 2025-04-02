@@ -22,5 +22,3 @@
   - [RAWG API](https://rawg.io/apidocs): Fetch comprehensive game data.
   - [CheapShark API](https://apidocs.cheapshark.com/): Retrieve current game sale information.
   - [Steam API](https://steamcommunity.com/dev): Access user's Steam library data.
-- **Data Parsing:**
-  - [Playnite](https://playnite.link/): Import and parse JSON files from Playnite to aggregate game libraries.
