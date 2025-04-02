@@ -55,13 +55,13 @@ export async function createGameCard(game) {
       deal &&
       deal.salePrice &&
       deal.normalPrice &&
-      deal.savings &&
-      deal.storeName
+      deal.storeName &&
+      deal.savings !== "0%"
     ) {
       const dealWrap = document.createElement("div");
       dealWrap.classList.add("deal-badge");
       dealWrap.innerHTML = `
-        <span class="deal-percent">-${deal.savings}</span>
+      ${deal.savings !== "0%" ? `<span class="deal-percent">-${deal.savings}</span>` : ""}
         <span class="old-price">$${parseFloat(deal.normalPrice).toFixed(
           2
         )}</span>

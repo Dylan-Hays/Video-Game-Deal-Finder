@@ -2,20 +2,27 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-// Accept any localhost or 127.0.0.1 origin
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+    if (!origin || process.env.NODE_ENV === "development") {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
     }
   },
-  methods: ["GET"],
+  methods: ["GET"]
 };
 
 app.use(cors(corsOptions));
@@ -49,9 +56,7 @@ app.get("/api/deals", async (req, res) => {
   }
 
   try {
-    const apiUrl = `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(
-      title
-    )}&pageSize=${pageSize}`;
+    const apiUrl = `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(title)}&pageSize=${pageSize}`;
     const response = await fetch(apiUrl);
     const deals = await response.json();
 
@@ -59,27 +64,28 @@ app.get("/api/deals", async (req, res) => {
       deal.title.toLowerCase().includes(title.toLowerCase())
     );
 
-    if (matchedDeal) {
-      const result = {
-        title: matchedDeal.title,
-        normalPrice: matchedDeal.normalPrice,
-        salePrice: matchedDeal.salePrice,
-        savings: `${Math.round(matchedDeal.savings)}%`,
-        storeName: storeMap[matchedDeal.storeID] || "Unknown Store",
-      };
-      dealCache.set(title, result);
-      return res.json(result);
-    } else {
-      dealCache.set(title, null);
-      return res.json(null);
+    if (!matchedDeal) {
+      return res.status(404).json({ error: "No deal found" });
     }
-  } catch (error) {
-    console.error("Error fetching deals:", error);
-    return res.status(500).json({ error: "Internal server error" });
+
+    const mappedDeal = {
+      title: matchedDeal.title,
+      normalPrice: matchedDeal.normalPrice,
+      salePrice: matchedDeal.salePrice,
+      savings: matchedDeal.savings >= 1 ? `${Math.round(matchedDeal.savings)}%` : null,
+      storeName: storeMap[matchedDeal.storeID] || matchedDeal.storeID
+    };
+
+    dealCache.set(title, mappedDeal);
+    res.json(mappedDeal);
+  } catch (err) {
+    console.error("Error fetching deals:", err);
+    res.status(500).json({ error: "Failed to fetch deal info" });
   }
 });
 
-app.listen(PORT, async () => {
-  await loadStores();
+loadStores();
+
+app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
