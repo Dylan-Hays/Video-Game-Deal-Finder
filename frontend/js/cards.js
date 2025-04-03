@@ -1,90 +1,59 @@
-// cards.js
+// /frontend/js/cards.js
 
-const BACKEND_URL = `http://${window.location.hostname}:3001`;
+import { RAWG_API_KEY, RAWG_BASE_URL, CHEAPSHARK_BASE_URL } from '../../data/fetch.env.js';
 
-export async function createGameCard(game) {
-  const card = document.createElement("div");
-  card.classList.add("game-card");
+const createGameCard = (game) => {
+  const card = document.createElement('div');
+  card.classList.add('game-card');
 
-  const thumbnail = document.createElement("div");
-  thumbnail.classList.add("thumbnail");
-  const image = document.createElement("img");
+  const image = document.createElement('img');
   image.src = game.background_image;
-  image.alt = game.name;
-  thumbnail.appendChild(image);
+  image.alt = `${game.name} Cover`;
 
-  const info = document.createElement("div");
-  info.classList.add("info");
-
-  const details = document.createElement("div");
-  details.classList.add("card-details");
-
-  const title = document.createElement("h4");
+  const title = document.createElement('h3');
   title.textContent = game.name;
 
-  const platforms = document.createElement("div");
-  platforms.classList.add("platforms");
-  platforms.innerHTML = renderPlatforms(game.platforms);
+  const rating = document.createElement('p');
+  rating.textContent = `Rating: ${game.rating}`;
 
-  const metadata = document.createElement("ul");
+  const price = document.createElement('p');
+  price.classList.add('deal-info');
+  price.textContent = 'Loading deal...';
 
-  const rating = document.createElement("li");
-  rating.innerHTML = `<i class="fa-solid fa-star"></i> ${game.rating || "N/A"}`;
+  card.appendChild(image);
+  card.appendChild(title);
+  card.appendChild(rating);
+  card.appendChild(price);
 
-  const released = document.createElement("li");
-  released.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${
-    game.released || "N/A"
-  }`;
+  fetchGameDeal(game.name, price);
 
-  metadata.appendChild(rating);
-  metadata.appendChild(released);
+  return card;
+};
 
-  details.appendChild(title);
-  details.appendChild(platforms);
-  details.appendChild(metadata);
-  info.appendChild(details);
+const fetchGameDeal = async (gameTitle, priceElement) => {
+  const encodedTitle = encodeURIComponent(gameTitle);
+  const proxy = location.protocol === 'file:' ? 'https://corsproxy.io/?' : '';
+  const url = `http://localhost:3001/api/deals?title=${encodedTitle}`;
 
   try {
-    const res = await fetch(
-      `${BACKEND_URL}/api/deals?title=${encodeURIComponent(game.name)}`
-    );
-    const deal = await res.json();
-    console.log("Deal received for:", game.name, deal);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
 
-    if (
-      deal &&
-      deal.salePrice &&
-      deal.normalPrice &&
-      deal.storeName &&
-      deal.savings !== "0%"
-    ) {
-      const dealWrap = document.createElement("div");
-      dealWrap.classList.add("deal-badge");
-      dealWrap.innerHTML = `
-      ${deal.savings !== "0%" ? `<span class="deal-percent">-${deal.savings}</span>` : ""}
-        <span class="old-price">$${parseFloat(deal.normalPrice).toFixed(
-          2
-        )}</span>
-        <span class="new-price">$${parseFloat(deal.salePrice).toFixed(2)}</span>
-      `;
+    const data = await response.json();
+    const deal = data[0];
 
-      const dealStore = document.createElement("div");
-      dealStore.classList.add("deal-store");
-      dealStore.textContent = `at ${deal.storeName}`;
-
-      info.appendChild(dealWrap);
-      info.appendChild(dealStore);
+    if (deal && deal.salePrice) {
+      priceElement.textContent = `On Sale: $${deal.salePrice}`;
     } else {
-      console.warn("No valid deal for:", game.name);
+      priceElement.textContent = 'No current deals';
     }
   } catch (error) {
-    console.error("Deal fetch failed for:", game.name, error);
+    priceElement.textContent = 'Deal info unavailable';
   }
+};
 
-  card.appendChild(thumbnail);
-  card.appendChild(info);
-  return card;
-}
+export { createGameCard };
+
 
 // Utility: Platform Icon Map
 const PLATFORM_ICON_MAP = {
