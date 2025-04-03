@@ -1,4 +1,4 @@
-# 🎮 Video Game Deal Finder
+# 🎮 Video Game Deal Tracker
 
 Welcome to **Video Game Deal Finder** – a web application that allows you to search for video games and instantly discover where they’re on sale across multiple stores!
 
