@@ -70,6 +70,10 @@ app.get("/api/games", async (req, res) => {
   }
 });
 
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.listen(PORT, async () => {
   await loadStores();
   console.log(`Server running on port ${PORT}`);
