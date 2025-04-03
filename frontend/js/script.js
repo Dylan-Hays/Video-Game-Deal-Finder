@@ -1,8 +1,4 @@
-// frontend/js/script.js
-
-// ✅ Ensure this runs via file:/// with no backend server required
-// ✅ RAWG API is called directly from browser (with user-provided key)
-// ✅ CheapShark API is proxied through Render to avoid CORS/rate limits
+// script.js
 
 const gameContainer = document.getElementById("gameContainer");
 const loadMoreBtn = document.getElementById("loadMoreBtn");
@@ -30,10 +26,18 @@ async function fetchGames(search = "", page = 1) {
     const data = await res.json();
 
     if (Array.isArray(data.results)) {
+      const seenTitles = new Set();
+
       for (const game of data.results) {
+        const normalizedTitle = game.name.trim().toLowerCase();
+        if (seenTitles.has(normalizedTitle)) continue;
+
+        seenTitles.add(normalizedTitle);
         const deal = await fetchDeal(game.name);
-        renderGameCard(game, deal);
+        const card = await createGameCard(game);
+        if (card) gameContainer.appendChild(card);
       }
+      
     } else {
       console.error("Invalid API response:", data);
       alert("Something went wrong fetching game data.");
@@ -46,7 +50,11 @@ async function fetchGames(search = "", page = 1) {
 
 async function fetchDeal(title) {
   try {
-    const response = await fetch(`https://video-game-library-tracker.onrender.com/api/deals?title=${encodeURIComponent(title)}`);
+    const response = await fetch(
+      `https://video-game-library-tracker.onrender.com/api/deals?title=${encodeURIComponent(
+        title
+      )}`
+    );
     const data = await response.json();
     return data && data.length > 0 ? data[0] : null;
   } catch (error) {
@@ -61,7 +69,9 @@ function renderGameCard(game, deal) {
 
   const dealHTML = deal
     ? `<div class="deal">
-        💲 <strong>$${parseFloat(deal.salePrice).toFixed(2)}</strong> @ ${deal.storeName}
+        💲 <strong>$${parseFloat(deal.salePrice).toFixed(2)}</strong> @ ${
+        deal.storeName
+      }
       </div>`
     : `<div class="deal">No deals found</div>`;
 
@@ -75,8 +85,8 @@ function renderGameCard(game, deal) {
           .join(" ")}
       </div>
       <div class="meta">
-        <span>⭐ ${game.rating.toFixed(2)}</span>
-        <span>📅 ${game.released}</span>
+        <span>${game.rating.toFixed(2)}</span>
+        <span>${game.released}</span>
       </div>
       ${dealHTML}
     </div>

@@ -56,6 +56,10 @@
   margin-bottom: 0;
 }
 
+.game-card .card-details .deal-info {
+  order: 4;
+}
+
 .game-card .card-details .platforms {
   order: 2;
   font-size: 16px;

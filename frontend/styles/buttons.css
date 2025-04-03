@@ -1,6 +1,6 @@
 /* buttons.css */
 
-/* === Main Button (Load More) === */
+/* Main Button (Load More) */
 .main-button {
     font-size: 15px;
     color: #fff;
@@ -24,7 +24,7 @@
     color: #003399;
   }
   
-  /* === Search Input (within search-bar) === */
+  /* Search Input (within search-bar) */
   .search-bar input {
     padding: 10px 15px;
     border: none;

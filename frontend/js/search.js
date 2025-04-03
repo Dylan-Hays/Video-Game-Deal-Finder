@@ -4,7 +4,7 @@ const searchInputField = document.getElementById("searchInput");
 const gameList = document.querySelector(".gameList");
 const loadMoreButton = document.querySelector(".main-button");
 
-const renderedGameIds = new Set();
+const renderedGameSlugs = new Set();
 
 async function handleSearch(query) {
   if (!window.RAWG_API_KEY || query.length < 3) return;
@@ -29,12 +29,13 @@ async function handleSearch(query) {
     }
 
     for (const game of data.results) {
-      if (renderedGameIds.has(game.id)) continue;
-      renderedGameIds.add(game.id);
-
+      if (!game.slug || renderedGameSlugs.has(game.slug)) continue;
+      renderedGameSlugs.add(game.slug);
+    
       const card = await createGameCard(game);
-      gameList.appendChild(card);
+      if (card) gameList.appendChild(card); 
     }
+
   } catch (err) {
     console.error("Search failed:", err);
   }

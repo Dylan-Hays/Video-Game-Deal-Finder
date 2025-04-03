@@ -41,10 +41,15 @@ app.get("/api/deals", async (req, res) => {
     const dealRes = await fetch(apiUrl);
     const deals = await dealRes.json();
 
+    if (!Array.isArray(deals)) {
+      console.error("Unexpected CheapShark API response:", deals);
+      return res.status(502).json({ error: "Unexpected response from deals API" });
+    }
+    
     const enriched = deals.map(deal => ({
       ...deal,
       storeName: storeMap[deal.storeID] || "Unknown Store"
-    }));
+    }));    
 
     dealCache.set(title, enriched);
     res.json(enriched);

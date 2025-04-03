@@ -1,6 +1,6 @@
 /* layout.css */
 
-/* === Page Header === */
+/* Page Header */
 .page-header {
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@
     padding-left: 30px;
   }
   
-  /* === Container & Layout === */
+  /* Container & Layout */
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -58,7 +58,7 @@
     line-height: 1.6;
   }
   
-  /* === Responsive Breakpoints === */
+  /* Responsive Breakpoints */
   @media (max-width: 992px) {
     .page-header {
       flex-direction: column;

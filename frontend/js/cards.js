@@ -8,60 +8,109 @@ if (!RAWG_API_KEY) {
   localStorage.setItem("rawg_key", RAWG_API_KEY);
 }
 
-const createGameCard = (game) => {
-  const card = document.createElement('div');
-  card.classList.add('game-card');
+let storeMap = {};
 
-  const image = document.createElement('img');
-  image.src = game.background_image;
-  image.alt = `${game.name} Cover`;
+async function loadStores() {
+  try {
+    const res = await fetch("https://www.cheapshark.com/api/1.0/stores");
+    const data = await res.json();
+    data.forEach(store => {
+      storeMap[store.storeID] = store.storeName;
+    });
+  } catch (err) {
+    console.error("Failed to load store names:", err);
+  }
+}
 
-  const title = document.createElement('h3');
+loadStores();
+
+function createGameCard(game) {
+  const card = document.createElement("div");
+  card.classList.add("game-card");
+
+  const thumbnail = document.createElement("div");
+  thumbnail.className = "thumbnail";
+  thumbnail.innerHTML = `<img src="${game.background_image}" alt="${game.name} Cover">`;
+
+  const info = document.createElement("div");
+  info.className = "info";
+
+  const cardDetails = document.createElement("div");
+  cardDetails.className = "card-details";
+
+  const title = document.createElement("h4");
   title.textContent = game.name;
 
-  const rating = document.createElement('p');
-  rating.textContent = `Rating: ${game.rating}`;
+  const platforms = document.createElement("div");
+  platforms.className = "platforms";
+  platforms.innerHTML = renderPlatforms(game.platforms || []);
 
-  const price = document.createElement('p');
-  price.classList.add('deal-info');
-  price.textContent = 'Loading deal...';
+  const meta = document.createElement("ul");
+  const rating = document.createElement("li");
+  rating.innerHTML = `<i class="fa-solid fa-star"></i> ${game.rating ?? "?"}`;
 
-  card.appendChild(image);
-  card.appendChild(title);
-  card.appendChild(rating);
-  card.appendChild(price);
+  const release = document.createElement("li");
+  release.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${game.released ?? "?"}`;
 
-  fetchGameDeal(game.name, price);
+  meta.appendChild(rating);
+  meta.appendChild(release);
 
+  const deal = document.createElement("div");
+  deal.className = "deal-info";
+
+  cardDetails.appendChild(title);
+  cardDetails.appendChild(platforms);
+  cardDetails.appendChild(meta);
+  cardDetails.appendChild(deal);
+
+  info.appendChild(cardDetails);
+  card.appendChild(thumbnail);
+  card.appendChild(info);
+
+  fetchGameDeal(game.name, deal);
+
+  if (!deal.innerHTML.trim()) return null;
   return card;
-};
+}
 
 const fetchGameDeal = async (gameTitle, priceElement) => {
   const encodedTitle = encodeURIComponent(gameTitle);
-  const proxy = location.protocol === 'file:' ? 'https://corsproxy.io/?' : '';
-  const url = `http://localhost:3001/api/deals?title=${encodedTitle}`;
+  const url = `https://video-game-library-tracker.onrender.com/api/deals?title=${encodedTitle}`;
 
   try {
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) throw new Error("Network response was not ok");
 
     const data = await response.json();
     const deal = data[0];
 
-    if (deal && deal.salePrice) {
-      priceElement.textContent = `On Sale: $${deal.salePrice}`;
+    if (deal && deal.salePrice && deal.normalPrice) {
+      const discount = Math.round(100 - (deal.salePrice / deal.normalPrice) * 100);
+
+      if (discount === 0) {
+        priceElement.innerHTML = "";
+        return null;
+      }
+
+      priceElement.innerHTML = `
+        <div class="deal-badge">
+          <span class="deal-percent">-${discount}%</span>
+          <span class="old-price">$${parseFloat(deal.normalPrice).toFixed(2)}</span>
+          <span class="new-price">$${parseFloat(deal.salePrice).toFixed(2)}</span>
+        </div>
+        <div class="deal-store">@ ${storeMap[deal.storeID] ?? "Unknown Store"}</div>
+      `;
     } else {
-      priceElement.textContent = 'No current deals';
+      priceElement.textContent = "";
     }
   } catch (error) {
-    priceElement.textContent = 'Deal info unavailable';
+    priceElement.textContent = "Deal info unavailable";
   }
 };
 
 window.createGameCard = createGameCard;
 
-
-// Utility: Platform Icon Map
+//Platform Icon Map Logic
 const PLATFORM_ICON_MAP = {
   pc: "fa-solid fa-desktop",
   playstation: "fa-brands fa-playstation",
@@ -98,13 +147,11 @@ function renderPlatformIcon(normalized, nameList) {
 
 function renderPlatforms(platformArray) {
   const grouped = {};
-
   platformArray.forEach((p) => {
     const norm = normalizePlatform(p.platform.name);
     if (!grouped[norm]) grouped[norm] = [];
     grouped[norm].push(p.platform.name);
   });
-
   return Object.entries(grouped)
     .map(([norm, names]) => renderPlatformIcon(norm, names))
     .join("");

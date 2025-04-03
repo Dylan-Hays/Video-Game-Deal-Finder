@@ -1,6 +1,6 @@
 /* preloader.css */
 
-/* === Loader Container === */
+/* Loader Container */
 .js-preloader {
     position: fixed;
     top: 0;
@@ -23,7 +23,7 @@
     pointer-events: none;
   }
   
-  /* === Loader Dots === */
+  /* Loader Dots */
   .preloader-inner {
     position: relative;
     width: 142px;
@@ -58,7 +58,7 @@
     display: block;
   }
   
-  /* === Animations === */
+  /* Animations */
   @keyframes dot {
     50% {
       transform: translateX(96px);
