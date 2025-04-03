@@ -1,53 +1,106 @@
-// script.js
-import { createGameCard } from "./cards.js";
+// frontend/js/script.js
 
-const gameList = document.querySelector(".gameList");
-const loadMoreBtn = document.querySelector(".main-button");
+// ✅ Ensure this runs via file:/// with no backend server required
+// ✅ RAWG API is called directly from browser (with user-provided key)
+// ✅ CheapShark API is proxied through Render to avoid CORS/rate limits
+
+const gameContainer = document.getElementById("gameContainer");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+const searchInput = document.getElementById("searchInput");
 
 let currentPage = 1;
-const pageSize = 20;
-const renderedGameIds = new Set();
+let currentSearch = "";
+let userApiKey = localStorage.getItem("rawgApiKey") || null;
 
-async function fetchGames(page = 1) {
-  if (!window.RAWG_API_KEY) {
-    console.error("RAWG API key is missing!");
-    return;
+if (!userApiKey) {
+  userApiKey = prompt("Please enter your RAWG API Key:");
+  if (userApiKey) {
+    localStorage.setItem("rawgApiKey", userApiKey);
+  } else {
+    alert("API key is required to use this app.");
   }
+}
 
+async function fetchGames(search = "", page = 1) {
   try {
-    const response = await fetch(
-      `https://api.rawg.io/api/games?key=${window.RAWG_API_KEY}&page=${page}`
-    );
-    const data = await response.json();
+    const url = `https://api.rawg.io/api/games?key=${userApiKey}&search=${encodeURIComponent(
+      search
+    )}&page=${page}&page_size=8`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-    if (data.results && data.results.length > 0) {
+    if (Array.isArray(data.results)) {
       for (const game of data.results) {
-        if (renderedGameIds.has(game.id)) continue;
-        renderedGameIds.add(game.id);
-
-        const card = await createGameCard(game);
-        gameList.appendChild(card);
+        const deal = await fetchDeal(game.name);
+        renderGameCard(game, deal);
       }
     } else {
-      disableLoadMore("No more games to load.");
+      console.error("Invalid API response:", data);
+      alert("Something went wrong fetching game data.");
     }
   } catch (error) {
-    console.error("Failed to load games:", error);
-    disableLoadMore("Error loading games.");
+    console.error("RAWG API fetch error:", error);
+    alert("Failed to fetch data from RAWG API.");
   }
 }
 
-function disableLoadMore(message) {
-  loadMoreBtn.disabled = true;
-  loadMoreBtn.textContent = message;
+async function fetchDeal(title) {
+  try {
+    const response = await fetch(`https://video-game-library-tracker.onrender.com/api/deals?title=${encodeURIComponent(title)}`);
+    const data = await response.json();
+    return data && data.length > 0 ? data[0] : null;
+  } catch (error) {
+    console.warn("Deal fetch failed for:", title);
+    return null;
+  }
 }
 
-// Initial fetch
-fetchGames(currentPage);
-document.getElementById("js-preloader")?.remove();
+function renderGameCard(game, deal) {
+  const card = document.createElement("div");
+  card.className = "game-card";
 
-// Handle Load More button
-loadMoreBtn.addEventListener("click", () => {
+  const dealHTML = deal
+    ? `<div class="deal">
+        💲 <strong>$${parseFloat(deal.salePrice).toFixed(2)}</strong> @ ${deal.storeName}
+      </div>`
+    : `<div class="deal">No deals found</div>`;
+
+  card.innerHTML = `
+    <img src="${game.background_image}" alt="${game.name}" />
+    <div class="info">
+      <h3>${game.name}</h3>
+      <div class="platforms">
+        ${game.parent_platforms
+          .map((p) => `<i class="icon-${p.platform.slug}"></i>`) // Font Awesome assumed
+          .join(" ")}
+      </div>
+      <div class="meta">
+        <span>⭐ ${game.rating.toFixed(2)}</span>
+        <span>📅 ${game.released}</span>
+      </div>
+      ${dealHTML}
+    </div>
+  `;
+
+  gameContainer.appendChild(card);
+}
+
+function handleSearchInput(e) {
+  const value = e.target.value.trim();
+  gameContainer.innerHTML = "";
+  currentPage = 1;
+  currentSearch = value;
+  fetchGames(currentSearch, currentPage);
+}
+
+function handleLoadMore() {
   currentPage++;
-  fetchGames(currentPage);
+  fetchGames(currentSearch, currentPage);
+}
+
+searchInput.addEventListener("input", handleSearchInput);
+loadMoreBtn.addEventListener("click", handleLoadMore);
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchGames();
 });

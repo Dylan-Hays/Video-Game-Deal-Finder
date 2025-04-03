@@ -1,9 +1,8 @@
 // search.js
-import { createGameCard } from "./cards.js";
 
-const searchInput = document.getElementById("searchInput");
+const searchInputField = document.getElementById("searchInput");
 const gameList = document.querySelector(".gameList");
-const loadMoreBtn = document.querySelector(".main-button");
+const loadMoreButton = document.querySelector(".main-button");
 
 const renderedGameIds = new Set();
 

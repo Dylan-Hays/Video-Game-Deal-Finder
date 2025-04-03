@@ -1,6 +1,12 @@
-// /frontend/js/cards.js
+// cards.js
 
-import { RAWG_API_KEY, RAWG_BASE_URL, CHEAPSHARK_BASE_URL } from '../../data/fetch.env.js';
+const API_BASE = "https://video-game-library-tracker.onrender.com";
+
+let RAWG_API_KEY = localStorage.getItem("rawg_key");
+if (!RAWG_API_KEY) {
+  RAWG_API_KEY = prompt("Enter your RAWG API Key:");
+  localStorage.setItem("rawg_key", RAWG_API_KEY);
+}
 
 const createGameCard = (game) => {
   const card = document.createElement('div');
@@ -52,7 +58,7 @@ const fetchGameDeal = async (gameTitle, priceElement) => {
   }
 };
 
-export { createGameCard };
+window.createGameCard = createGameCard;
 
 
 // Utility: Platform Icon Map

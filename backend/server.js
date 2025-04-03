@@ -22,9 +22,9 @@ async function loadStores() {
     for (const store of stores) {
       storeMap[String(store.storeID)] = store.storeName;
     }
-    console.log("✅ Store map loaded");
+    console.log("Store map loaded");
   } catch (err) {
-    console.error("❌ Failed to load store data:", err);
+    console.error("Failed to load store data:", err);
   }
 }
 
@@ -49,7 +49,7 @@ app.get("/api/deals", async (req, res) => {
     dealCache.set(title, enriched);
     res.json(enriched);
   } catch (err) {
-    console.error("❌ Error fetching deal:", err);
+    console.error("Error fetching deal:", err);
     res.status(500).json({ error: "Failed to fetch deal data" });
   }
 });
@@ -65,12 +65,12 @@ app.get("/api/games", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error("❌ RAWG error:", err);
+    console.error("RAWG error:", err);
     res.status(500).json({ error: "Failed to fetch RAWG data" });
   }
 });
 
 app.listen(PORT, async () => {
   await loadStores();
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
