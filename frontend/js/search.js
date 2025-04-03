@@ -1,34 +1,47 @@
 // search.js
-import { createGameCard } from './cards.js';
 
-const searchInput = document.getElementById("searchInput");
+const searchInputField = document.getElementById("searchInput");
 const gameList = document.querySelector(".gameList");
+const loadMoreButton = document.querySelector(".main-button");
 
-searchInput.addEventListener("input", async function () {
-  const query = this.value.trim();
+const renderedGameIds = new Set();
 
-  if (query.length === 0) {
-    gameList.innerHTML = "";
-    return;
-  }
+async function handleSearch(query) {
+  if (!window.RAWG_API_KEY || query.length < 3) return;
+
+  gameList.innerHTML = "";
+  renderedGameIds.clear();
+  loadMoreBtn.style.display = "none";
 
   try {
-    const response = await fetch(`https://api.rawg.io/api/games?key=${window.RAWG_API_KEY}&search=${query}`);
-    const data = await response.json();
+    const res = await fetch(
+      `https://api.rawg.io/api/games?key=${
+        window.RAWG_API_KEY
+      }&search=${encodeURIComponent(query)}`
+    );
+    const data = await res.json();
 
-    gameList.innerHTML = "";
-
-    if (data.results && data.results.length > 0) {
-      data.results.forEach((game) => {
-        const card = createGameCard(game);
-        gameList.appendChild(card);
-      });
-    } else {
-      gameList.innerHTML = "<p>No games found.</p>";
+    if (!data.results || data.results.length === 0) {
+      const msg = document.createElement("p");
+      msg.textContent = "No results found.";
+      gameList.appendChild(msg);
+      return;
     }
 
-  } catch (error) {
-    console.error("Search failed:", error);
-    gameList.innerHTML = "<p>Error loading results. Please try again.</p>";
+    for (const game of data.results) {
+      if (renderedGameIds.has(game.id)) continue;
+      renderedGameIds.add(game.id);
+
+      const card = await createGameCard(game);
+      gameList.appendChild(card);
+    }
+  } catch (err) {
+    console.error("Search failed:", err);
   }
+}
+
+let debounceTimeout;
+searchInput.addEventListener("input", (e) => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => handleSearch(e.target.value.trim()), 300);
 });

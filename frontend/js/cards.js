@@ -1,54 +1,65 @@
 // cards.js
 
-// Main Card Renderer
-export function createGameCard(game) {
-  const card = document.createElement("div");
-  card.classList.add("game-card");
+const API_BASE = "https://video-game-library-tracker.onrender.com";
 
-  const thumbnail = document.createElement("div");
-  thumbnail.classList.add("thumbnail");
-  const image = document.createElement("img");
+let RAWG_API_KEY = localStorage.getItem("rawg_key");
+if (!RAWG_API_KEY) {
+  RAWG_API_KEY = prompt("Enter your RAWG API Key:");
+  localStorage.setItem("rawg_key", RAWG_API_KEY);
+}
+
+const createGameCard = (game) => {
+  const card = document.createElement('div');
+  card.classList.add('game-card');
+
+  const image = document.createElement('img');
   image.src = game.background_image;
-  image.alt = game.name;
-  thumbnail.appendChild(image);
+  image.alt = `${game.name} Cover`;
 
-  const info = document.createElement("div");
-  info.classList.add("info");
-
-  const details = document.createElement("div");
-  details.classList.add("card-details");
-
-  const title = document.createElement("h4");
+  const title = document.createElement('h3');
   title.textContent = game.name;
 
-  const platforms = document.createElement("div");
-  platforms.classList.add("platforms");
-  platforms.innerHTML = renderPlatforms(game.platforms);
+  const rating = document.createElement('p');
+  rating.textContent = `Rating: ${game.rating}`;
 
-  const metadata = document.createElement("ul");
+  const price = document.createElement('p');
+  price.classList.add('deal-info');
+  price.textContent = 'Loading deal...';
 
-  const rating = document.createElement("li");
-  rating.innerHTML = `<i class="fa-solid fa-star"></i> ${game.rating || "N/A"}`;
+  card.appendChild(image);
+  card.appendChild(title);
+  card.appendChild(rating);
+  card.appendChild(price);
 
-  const released = document.createElement("li");
-  released.innerHTML = `<i class="fa-solid fa-calendar"></i> ${
-    game.released || "Unknown"
-  }`;
-
-  metadata.appendChild(rating);
-  metadata.appendChild(released);
-
-  details.appendChild(title);
-  details.appendChild(platforms);
-  details.appendChild(metadata);
-
-  info.appendChild(details);
-
-  card.appendChild(thumbnail);
-  card.appendChild(info);
+  fetchGameDeal(game.name, price);
 
   return card;
-}
+};
+
+const fetchGameDeal = async (gameTitle, priceElement) => {
+  const encodedTitle = encodeURIComponent(gameTitle);
+  const proxy = location.protocol === 'file:' ? 'https://corsproxy.io/?' : '';
+  const url = `http://localhost:3001/api/deals?title=${encodedTitle}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+    const deal = data[0];
+
+    if (deal && deal.salePrice) {
+      priceElement.textContent = `On Sale: $${deal.salePrice}`;
+    } else {
+      priceElement.textContent = 'No current deals';
+    }
+  } catch (error) {
+    priceElement.textContent = 'Deal info unavailable';
+  }
+};
+
+window.createGameCard = createGameCard;
+
 
 // Utility: Platform Icon Map
 const PLATFORM_ICON_MAP = {

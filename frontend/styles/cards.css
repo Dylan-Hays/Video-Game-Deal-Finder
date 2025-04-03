@@ -81,16 +81,47 @@
 }
 
 /* Icon color overrides */
+.platform-icon {
+  margin-right: 6px;
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
 .game-card .card-details ul li:first-child i {
   color: yellow;
 }
 
 .game-card .card-details ul li:last-child i {
-  color: #91deff;
+  color: #ff91ef;
 }
 
-.platform-icon {
-  margin-right: 6px;
-  font-size: 1.1rem;
+.deal-badge {
+  display: flex;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-top: 12px;
+}
+
+.deal-percent {
+  background-color: #4c6b22;
+  color: #b4ec1a;
+  padding: 2px 6px;
+  font-weight: bold;
+}
+
+.old-price {
+  text-decoration: line-through;
   color: #ccc;
+  margin-left: 4px;
+}
+
+.new-price {
+  color: #b4ec1a;
+  margin-left: 4px;
+}
+
+.deal-store {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 4px;
 }
