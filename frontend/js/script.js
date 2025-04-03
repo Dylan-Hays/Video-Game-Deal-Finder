@@ -1,8 +1,4 @@
-// frontend/js/script.js
-
-// ✅ Ensure this runs via file:/// with no backend server required
-// ✅ RAWG API is called directly from browser (with user-provided key)
-// ✅ CheapShark API is proxied through Render to avoid CORS/rate limits
+// script.js
 
 const gameContainer = document.getElementById("gameContainer");
 const loadMoreBtn = document.getElementById("loadMoreBtn");
