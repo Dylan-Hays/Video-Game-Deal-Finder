@@ -92,6 +92,7 @@ Web Development Capstone | Code:You (August 2024 Cohort)
 ---
 
 ## 🔄 Future Improvements
-- Add wish list system
+- Add wish list system.
 - Add filter options when searching for games (Sorting games by genre or most popular)
 - Add the ability to search for console games with digital store fronts. (CheapShark API only shows games on PC)
+- Fully fix the occasional card duplication bug.
