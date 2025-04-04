@@ -51,7 +51,7 @@ git clone https://github.com/your-username/video-game-deal-tracker.git
 1. Navigate to the `frontend` folder.
 2. Open the `index.html` file in your browser.
 3. When prompted, input your personal RAWG API key. (You can get this by creating a free account at [RAWG.io](https://rawg.io/apidocs))
-4. After input, the application will initialize.
+4. After input, the application will initialize. (PRICES MAY TAKE A FEW SECONDS TO LOAD ON FIRST STARTUP)
 5. Type a game name into the search bar and enjoy real-time deal tracking!
 
 ---
