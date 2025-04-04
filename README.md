@@ -1,6 +1,12 @@
-# Video Game Deal Tracker
+# 🎮 Video Game Deal Tracker
 
-A responsive web application that helps gamers find the best video game deals across various platforms and stores. Users can search by title, view detailed pricing info, and see platform compatibility. Built as a capstone project for the August 2024 Web Development cohort at Code:You.
+Welcome to **Video Game Deal Finder** – a web application that allows you to search for video games and instantly discover where they’re on sale across multiple stores!
+
+---
+
+## 🚀 Project Overview
+
+This capstone project was built for the Code:You web development program. It showcases integration of third-party APIs, frontend dynamic rendering, and a hosted backend proxy for working around CORS and rate-limiting issues. The application fetches data from the RAWG API and CheapShark API to display both game information and deal prices.
 
 ---
 
