@@ -28,14 +28,18 @@ async function fetchGames(search = "", page = 1) {
     if (Array.isArray(data.results)) {
       const seenTitles = new Set();
 
+      const normalizeTitle = title =>
+        title.toLowerCase().replace(/[^a-z0-9]/gi, "").replace(/\s+/g, "");
+      
+      const seenGames = new Set();
+      
       for (const game of data.results) {
-        const normalizedTitle = game.name.trim().toLowerCase();
-        if (seenTitles.has(normalizedTitle)) continue;
-
-        seenTitles.add(normalizedTitle);
-        const deal = await fetchDeal(game.name);
+        const uniqueKey = `${normalizeTitle(game.name)}_${game.released}`;
+        if (seenGames.has(uniqueKey)) continue;
+        seenGames.add(uniqueKey);
+      
         const card = await createGameCard(game);
-        if (card) gameContainer.appendChild(card);
+        if (card) gameList.appendChild(card);
       }
       
     } else {

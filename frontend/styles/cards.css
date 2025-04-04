@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.5s ease;
 }
 
 .game-card:hover {
@@ -58,6 +58,11 @@
 
 .game-card .card-details .deal-info {
   order: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
 }
 
 .game-card .card-details .platforms {
@@ -125,7 +130,9 @@
 }
 
 .deal-store {
-  font-size: 0.75rem;
+  font-size: 0.99rem;
   color: #aaa;
   margin-top: 4px;
+  text-decoration: underline;
+  text-align: center;
 }

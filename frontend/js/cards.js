@@ -14,7 +14,7 @@ async function loadStores() {
   try {
     const res = await fetch("https://www.cheapshark.com/api/1.0/stores");
     const data = await res.json();
-    data.forEach(store => {
+    data.forEach((store) => {
       storeMap[store.storeID] = store.storeName;
     });
   } catch (err) {
@@ -50,7 +50,9 @@ function createGameCard(game) {
   rating.innerHTML = `<i class="fa-solid fa-star"></i> ${game.rating ?? "?"}`;
 
   const release = document.createElement("li");
-  release.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${game.released ?? "?"}`;
+  release.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${
+    game.released ?? "?"
+  }`;
 
   meta.appendChild(rating);
   meta.appendChild(release);
@@ -69,7 +71,6 @@ function createGameCard(game) {
 
   fetchGameDeal(game.name, deal);
 
-  if (!deal.innerHTML.trim()) return null;
   return card;
 }
 
@@ -85,7 +86,9 @@ const fetchGameDeal = async (gameTitle, priceElement) => {
     const deal = data[0];
 
     if (deal && deal.salePrice && deal.normalPrice) {
-      const discount = Math.round(100 - (deal.salePrice / deal.normalPrice) * 100);
+      const discount = Math.round(
+        100 - (deal.salePrice / deal.normalPrice) * 100
+      );
 
       if (discount === 0) {
         priceElement.innerHTML = "";
@@ -95,16 +98,26 @@ const fetchGameDeal = async (gameTitle, priceElement) => {
       priceElement.innerHTML = `
         <div class="deal-badge">
           <span class="deal-percent">-${discount}%</span>
-          <span class="old-price">$${parseFloat(deal.normalPrice).toFixed(2)}</span>
-          <span class="new-price">$${parseFloat(deal.salePrice).toFixed(2)}</span>
+          <span class="old-price">$${parseFloat(deal.normalPrice).toFixed(
+            2
+          )}</span>
+          <span class="new-price">$${parseFloat(deal.salePrice).toFixed(
+            2
+          )}</span>
         </div>
-        <div class="deal-store">@ ${storeMap[deal.storeID] ?? "Unknown Store"}</div>
+        <div class="deal-store">
+         <a href="https://www.cheapshark.com/redirect?dealID=${
+          deal.dealID
+          }" target="_blank">
+          @ ${storeMap[deal.storeID] ?? "Unknown Store"}
+         </a>
+       </div>
       `;
     } else {
       priceElement.textContent = "";
     }
   } catch (error) {
-    priceElement.textContent = "Deal info unavailable";
+    priceElement.textContent = "";
   }
 };
 

@@ -29,11 +29,14 @@ async function handleSearch(query) {
     }
 
     for (const game of data.results) {
-      if (!game.slug || renderedGameSlugs.has(game.slug)) continue;
-      renderedGameSlugs.add(game.slug);
+      const title = game.name.trim().toLowerCase();
+      const date = game.released || "";
+      const key = `${title}|${date}`;
+      if (renderedGameSlugs.has(key)) continue;
+      renderedGameSlugs.add(key);      
     
       const card = await createGameCard(game);
-      if (card) gameList.appendChild(card); 
+      if (card) gameList.appendChild(card);      
     }
 
   } catch (err) {
