@@ -56,6 +56,10 @@ git clone https://github.com/your-username/video-game-deal-tracker.git
 
 ---
 
+**BE WARNED** Excessive use could cause throttling due to API rate limits. If the application stops working for you simply close it and wait a few minutes before trying again.
+
+---
+
 ## 📈 Capstone Alignment Checklist
 - [x] GitHub Repo with 10+ commits
 - [x] Detailed `README.md`
