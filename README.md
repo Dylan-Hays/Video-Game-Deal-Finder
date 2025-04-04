@@ -79,9 +79,17 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
+## 🛠️ Contribution Acknowledgment
+
+ChatGPT was used to write this README.  
+**Code-Copilot** was used for debugging during development, as well as cleaning code structure and writing comments in order to make the application ready for deployment.
+
+---
+
 ## 🙇️ Acknowledgments
 - [RAWG](https://rawg.io/) and [CheapShark](https://cheapshark.com/) for their APIs.
 - Code:You mentors for support and guidance.
+- Thanks guys, you helped relieve a lot of stress and negative loaded expectations I had about this going in.
 
 ---
 

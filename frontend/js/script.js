@@ -7,6 +7,7 @@ let currentPage = 1;
 let currentSearch = "";
 let userApiKey = localStorage.getItem("rawgApiKey") || null;
 
+// Prompt user for RAWG API key if not found in localStorage
 if (!userApiKey) {
   userApiKey = prompt("Please enter your RAWG API Key:");
   if (userApiKey) {
@@ -16,6 +17,7 @@ if (!userApiKey) {
   }
 }
 
+// Fetch game data from RAWG API
 async function fetchGames(search = "", page = 1) {
   try {
     const url = `https://api.rawg.io/api/games?key=${userApiKey}&search=${encodeURIComponent(
@@ -27,6 +29,7 @@ async function fetchGames(search = "", page = 1) {
     if (Array.isArray(data.results)) {
       const seenTitles = new Set();
 
+      // Normalize title to ensure uniqueness even with slight name differences
       const normalizeTitle = title =>
         title.toLowerCase().replace(/[^a-z0-9]/gi, "").replace(/\s+/g, "");
       
@@ -37,7 +40,7 @@ async function fetchGames(search = "", page = 1) {
         if (seenGames.has(uniqueKey)) continue;
         seenGames.add(uniqueKey);
       
-        const card = await createGameCard(game);
+        const card = await createGameCard(game);// Calls a helper function
         if (card) gameList.appendChild(card);
       }
       
@@ -51,6 +54,7 @@ async function fetchGames(search = "", page = 1) {
   }
 }
 
+// Fetch deal info from backend server proxying CheapShark API
 async function fetchDeal(title) {
   try {
     const response = await fetch(

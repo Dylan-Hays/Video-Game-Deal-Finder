@@ -2,6 +2,7 @@
 
 const API_BASE = "https://video-game-library-tracker.onrender.com";
 
+// Prompt for RAWG API key if not found in localStorage
 let RAWG_API_KEY = localStorage.getItem("rawg_key");
 if (!RAWG_API_KEY) {
   RAWG_API_KEY = prompt("Enter your RAWG API Key:");
@@ -10,6 +11,7 @@ if (!RAWG_API_KEY) {
 
 let storeMap = {};
 
+// Preload store IDs → names from CheapShark
 async function loadStores() {
   try {
     const res = await fetch("https://www.cheapshark.com/api/1.0/stores");
@@ -21,10 +23,72 @@ async function loadStores() {
     console.error("Failed to load store names:", err);
   }
 }
-
 loadStores();
 
-function createGameCard(game) {
+// Periodically remove expired deal cache entries (older than 1 hour)
+function cleanupOldDeals(maxAgeMs = 3600000) {
+  for (const key in sessionStorage) {
+    if (key.startsWith("deal-")) {
+      try {
+        const { ts } = JSON.parse(sessionStorage.getItem(key));
+        if (Date.now() - ts > maxAgeMs) {
+          sessionStorage.removeItem(key);
+        }
+      } catch (e) {
+        sessionStorage.removeItem(key);// Fallback if corrupted
+      }
+    }
+  }
+}
+
+// Retrieve deal from sessionStorage cache (if fresh)
+function getCachedDeal(title, maxAgeMs = 3600000) {
+  const cached = sessionStorage.getItem(`deal-${title}`);
+  if (cached) {
+    try {
+      const { deal, ts } = JSON.parse(cached);
+      if (Date.now() - ts < maxAgeMs) return deal;
+      else sessionStorage.removeItem(`deal-${title}`);
+    } catch (e) {
+      sessionStorage.removeItem(`deal-${title}`);
+    }
+  }
+  return null;
+}
+
+// Save deal to sessionStorage cache with timestamp
+function setCachedDeal(title, deal) {
+  sessionStorage.setItem(`deal-${title}`, JSON.stringify({ deal, ts: Date.now() }));
+}
+
+// Clean expired deals on load
+cleanupOldDeals();
+
+// Clear cache completely on tab/window close
+window.addEventListener("beforeunload", () => {
+  Object.keys(sessionStorage)
+    .filter(key => key.startsWith("deal-"))
+    .forEach(key => sessionStorage.removeItem(key));
+});
+
+// Fetch deal data (use cache if available)
+async function fetchGameDeal(title) {
+  const cached = getCachedDeal(title);
+  if (cached) return cached;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/deals?title=${encodeURIComponent(title)}`);
+    const data = await res.json();
+    setCachedDeal(title, data);// Store fresh result
+    return data;
+  } catch (err) {
+    console.error("Error fetching deal:", err);
+    return null;
+  }
+}
+
+// Create a game card DOM element
+window.createGameCard = function(game) {
   const card = document.createElement("div");
   card.classList.add("game-card");
 
@@ -60,6 +124,7 @@ function createGameCard(game) {
   const deal = document.createElement("div");
   deal.className = "deal-info";
 
+    // Assemble card structure
   cardDetails.appendChild(title);
   cardDetails.appendChild(platforms);
   cardDetails.appendChild(meta);
@@ -69,12 +134,13 @@ function createGameCard(game) {
   card.appendChild(thumbnail);
   card.appendChild(info);
 
-  fetchGameDeal(game.name, deal);
+  renderGameDeal(game.name, deal);// Populate deal section asynchronously
 
   return card;
 }
 
-const fetchGameDeal = async (gameTitle, priceElement) => {
+// Render deal info into a card's deal element
+const renderGameDeal = async (gameTitle, priceElement) => {
   const encodedTitle = encodeURIComponent(gameTitle);
   const url = `https://video-game-library-tracker.onrender.com/api/deals?title=${encodedTitle}`;
 
@@ -91,10 +157,11 @@ const fetchGameDeal = async (gameTitle, priceElement) => {
       );
 
       if (discount === 0) {
-        priceElement.innerHTML = "";
+        priceElement.innerHTML = "";// No discount, show nothing
         return null;
       }
 
+      // Display discount badge and pricing
       priceElement.innerHTML = `
         <div class="deal-badge">
           <span class="deal-percent">-${discount}%</span>
@@ -114,14 +181,14 @@ const fetchGameDeal = async (gameTitle, priceElement) => {
        </div>
       `;
     } else {
-      priceElement.textContent = "";
+      priceElement.textContent = "";// No deal found
     }
   } catch (error) {
-    priceElement.textContent = "";
+    priceElement.textContent = "";// API error fallback
   }
 };
 
-window.createGameCard = createGameCard;
+window.createGameCard = createGameCard;// Expose globally for script.js
 
 //Platform Icon Map Logic
 const PLATFORM_ICON_MAP = {
@@ -138,6 +205,7 @@ const PLATFORM_ICON_MAP = {
 
 const DEFAULT_PLATFORM_ICON = "fa-solid fa-gamepad";
 
+// Normalize platform names to known keys
 function normalizePlatform(name) {
   const lower = name.toLowerCase();
   if (lower.includes("playstation")) return "playstation";
@@ -149,15 +217,17 @@ function normalizePlatform(name) {
   if (lower.includes("android")) return "android";
   if (lower.includes("linux")) return "linux";
   if (lower.includes("web")) return "web";
-  return name.toLowerCase();
+  return name.toLowerCase();// fallback
 }
 
+// Build a single platform icon with tooltip showing all platform name variants
 function renderPlatformIcon(normalized, nameList) {
   const iconClass = PLATFORM_ICON_MAP[normalized] || DEFAULT_PLATFORM_ICON;
   const title = nameList.join(", ");
   return `<i class="${iconClass} platform-icon" title="${title}"></i>`;
 }
 
+// Render all platforms into icons, grouped by normalized type
 function renderPlatforms(platformArray) {
   const grouped = {};
   platformArray.forEach((p) => {
@@ -167,9 +237,10 @@ function renderPlatforms(platformArray) {
   });
   return Object.entries(grouped)
     .map(([norm, names]) => renderPlatformIcon(norm, names))
-    .join("");
+    .join(""); // Return HTML string of icons
 }
 
+// Capitalizes the first character of a string
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }

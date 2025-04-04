@@ -4,16 +4,17 @@ const searchInputField = document.getElementById("searchInput");
 const gameList = document.querySelector(".gameList");
 const loadMoreButton = document.querySelector(".main-button");
 
-const renderedGameSlugs = new Set();
+const renderedGameSlugs = new Set();// Capitalizes the first character of a string
 
+// Core function to fetch & render search results
 async function handleSearch(query) {
 
   const apiKey = window.RAWG_API_KEY || localStorage.getItem("rawgApiKey");
-  if (!apiKey || query.length < 3) return;
+  if (!apiKey || query.length < 3) return; // Avoid weak/incomplete queries
 
-  gameList.innerHTML = "";
-  renderedGameSlugs.clear();
-  loadMoreButton.style.display = "none";
+  gameList.innerHTML = ""; // Clear old results
+  renderedGameSlugs.clear(); // Reset deduplication
+  loadMoreButton.style.display = "none"; // Hide pagination during search
 
   try {
     const res = await fetch(
@@ -33,7 +34,7 @@ async function handleSearch(query) {
     for (const game of data.results) {
       const title = game.name.trim().toLowerCase();
       const date = game.released || "";
-      const key = `${title}|${date}`;
+      const key = `${title}|${date}`; // Uniqueness per title+release
       if (renderedGameSlugs.has(key)) continue;
       renderedGameSlugs.add(key);      
 
@@ -46,12 +47,14 @@ async function handleSearch(query) {
   }
 }
 
+// Run search on Enter key
 searchInputField.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     handleSearch(searchInputField.value.trim());
   }
 });
 
+// Run search on search button click
 const searchBtn = document.getElementById("searchBtn");
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
@@ -59,4 +62,5 @@ if (searchBtn) {
   });
 }
 
+// Remove stray reference if previously attached incorrectly
 searchInputField.removeEventListener("input", handleSearch);

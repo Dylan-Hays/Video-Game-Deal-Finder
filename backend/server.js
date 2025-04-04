@@ -5,16 +5,17 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
 
-dotenv.config();
+dotenv.config();// Load environment variables from .env file
 
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(cors());
+app.use(cors());// Enable CORS for all routes
 
-let storeMap = {};
-const dealCache = new Map();
+let storeMap = {};// Maps storeID to storeName
+const dealCache = new Map();// In-memory cache for deal results
 
+// Load store metadata from CheapShark API and build the storeMap
 async function loadStores() {
   try {
     const res = await fetch("https://www.cheapshark.com/api/1.0/stores");
@@ -28,13 +29,14 @@ async function loadStores() {
   }
 }
 
+// Route to fetch deals for a game title from CheapShark
 app.get("/api/deals", async (req, res) => {
   const title = req.query.title;
   const pageSize = req.query.pageSize || 3;
 
   if (!title) return res.status(400).json({ error: "Missing game title" });
 
-  if (dealCache.has(title)) return res.json(dealCache.get(title));
+  if (dealCache.has(title)) return res.json(dealCache.get(title));// Return from cache if available
 
   try {
     const apiUrl = `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(title)}&pageSize=${pageSize}`;
@@ -46,12 +48,13 @@ app.get("/api/deals", async (req, res) => {
       return res.status(502).json({ error: "Unexpected response from deals API" });
     }
     
+        // Enrich deals with store names
     const enriched = deals.map(deal => ({
       ...deal,
       storeName: storeMap[deal.storeID] || "Unknown Store"
     }));    
 
-    dealCache.set(title, enriched);
+    dealCache.set(title, enriched);// Save to cache
     res.json(enriched);
   } catch (err) {
     console.error("Error fetching deal:", err);
@@ -59,6 +62,7 @@ app.get("/api/deals", async (req, res) => {
   }
 });
 
+// Route to fetch game metadata from RAWG API
 app.get("/api/games", async (req, res) => {
   const title = req.query.title;
   const key = req.query.key || process.env.RAWG_API_KEY;
@@ -80,6 +84,6 @@ app.get("/healthz", (req, res) => {
 });
 
 app.listen(PORT, async () => {
-  await loadStores();
+  await loadStores();// Load store metadata before accepting requests
   console.log(`Server running on port ${PORT}`);
 });
