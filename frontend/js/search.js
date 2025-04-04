@@ -7,16 +7,18 @@ const loadMoreButton = document.querySelector(".main-button");
 const renderedGameSlugs = new Set();
 
 async function handleSearch(query) {
-  if (!window.RAWG_API_KEY || query.length < 3) return;
+
+  const apiKey = window.RAWG_API_KEY || localStorage.getItem("rawgApiKey");
+  if (!apiKey || query.length < 3) return;
 
   gameList.innerHTML = "";
-  renderedGameIds.clear();
-  loadMoreBtn.style.display = "none";
+  renderedGameSlugs.clear();
+  loadMoreButton.style.display = "none";
 
   try {
     const res = await fetch(
       `https://api.rawg.io/api/games?key=${
-        window.RAWG_API_KEY
+        apiKey
       }&search=${encodeURIComponent(query)}`
     );
     const data = await res.json();
@@ -34,7 +36,7 @@ async function handleSearch(query) {
       const key = `${title}|${date}`;
       if (renderedGameSlugs.has(key)) continue;
       renderedGameSlugs.add(key);      
-    
+
       const card = await createGameCard(game);
       if (card) gameList.appendChild(card);      
     }
@@ -44,8 +46,17 @@ async function handleSearch(query) {
   }
 }
 
-let debounceTimeout;
-searchInput.addEventListener("input", (e) => {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => handleSearch(e.target.value.trim()), 300);
+searchInputField.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    handleSearch(searchInputField.value.trim());
+  }
 });
+
+const searchBtn = document.getElementById("searchBtn");
+if (searchBtn) {
+  searchBtn.addEventListener("click", () => {
+    handleSearch(searchInputField.value.trim());
+  });
+}
+
+searchInputField.removeEventListener("input", handleSearch);

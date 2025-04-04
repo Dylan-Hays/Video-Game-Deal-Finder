@@ -2,7 +2,6 @@
 
 const gameContainer = document.getElementById("gameContainer");
 const loadMoreBtn = document.getElementById("loadMoreBtn");
-const searchInput = document.getElementById("searchInput");
 
 let currentPage = 1;
 let currentSearch = "";
@@ -85,7 +84,7 @@ function renderGameCard(game, deal) {
       <h3>${game.name}</h3>
       <div class="platforms">
         ${game.parent_platforms
-          .map((p) => `<i class="icon-${p.platform.slug}"></i>`) // Font Awesome assumed
+          .map((p) => `<i class="icon-${p.platform.slug}"></i>`)
           .join(" ")}
       </div>
       <div class="meta">
@@ -112,7 +111,6 @@ function handleLoadMore() {
   fetchGames(currentSearch, currentPage);
 }
 
-searchInput.addEventListener("input", handleSearchInput);
 loadMoreBtn.addEventListener("click", handleLoadMore);
 
 document.addEventListener("DOMContentLoaded", () => {
